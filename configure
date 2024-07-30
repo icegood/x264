@@ -1348,9 +1348,12 @@ if [ "$strip" = "yes" ]; then
 fi
 
 if [ "$debug" = "yes" ]; then
-    CFLAGS="-O1 -g $CFLAGS"
+    CFLAGS="-g $CFLAGS"
     RCFLAGS="$RCFLAGS -DDEBUG"
 else
+    if [ $compiler = GNU ] && cc_check '' -fvisibility=hidden ; then
+        CFLAGS="$CFLAGS -fvisibility=hidden"
+    fi
     CFLAGS="-O3 -ffast-math $CFLAGS"
     if [ "$lto" = "auto" ] && [ $compiler = GNU ] && cc_check "" "-flto" ; then
         lto="yes"
@@ -1386,10 +1389,6 @@ fi
 
 if cc_check '' -Wmaybe-uninitialized ; then
     CFLAGS="-Wno-maybe-uninitialized $CFLAGS"
-fi
-
-if [ $compiler = GNU ] && cc_check '' -fvisibility=hidden ; then
-    CFLAGS="$CFLAGS -fvisibility=hidden"
 fi
 
 if [ $compiler = ICC -o $compiler = ICL ] ; then
